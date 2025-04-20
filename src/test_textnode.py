@@ -1,6 +1,7 @@
 import unittest
 
-from textnode import TextNode, TextType
+from textnode import *
+
 
 
 class TestTextNode(unittest.TestCase):
@@ -13,6 +14,16 @@ class TestTextNode(unittest.TestCase):
         node = TextNode("Sample node", TextType.ITALIC, "127.0.0.1:32400")
         self.assertEqual(isinstance(node.__repr__(), str), True)
         
+    def test_text(self):
+        node = TextNode("This is a text node", TextType.TEXT)
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, None)
+        self.assertEqual(html_node.value, "This is a text node")
+
+    def test_bold(self):
+        node = TextNode("Bold text node", TextType.BOLD)
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, "b")
 
 if __name__ == "__main__":
     unittest.main()
