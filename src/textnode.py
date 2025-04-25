@@ -15,7 +15,10 @@ class TextNode():
         self.url = url
 
     def __eq__(self, other_node):
-        if self.text == other_node.text and self.text_type == other_node.text_type and self.url == other_node.url:
+        if self.text == other_node.text and self.text_type == other_node.text_type:
+            if self.url:
+                if self.url == other_node.url:
+                    return True
             return True
         else:
             return False
@@ -44,6 +47,6 @@ def text_node_to_html_node(text_node):
             case TextType.LINK:
                 return LeafNode("a", text_node.text, {"href"})
             case TextType.IMAGE:
-                return LeafNode("img", None, {"src", "alt"})
+                return LeafNode("img", None, {"src", "alt"}) #Keep an eye on this, not sure how the src and alt text are meant to be passed
             case _:
                 raise Exception("Unknown error in text_node_to_html_node")
