@@ -7,6 +7,110 @@ from textnode import *
 
 class TestOtherFunctions(unittest.TestCase):
 
+
+    #Tests for text_to_textnodes
+
+    def test_text_to_textnodes(self):
+        node = TextNode("This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)", TextType.TEXT)
+        new_nodes = text_to_textnodes(node)
+        self.assertListEqual( new_nodes,
+                             [
+                            TextNode("This is ", TextType.TEXT),
+                            TextNode("text", TextType.BOLD),
+                            TextNode(" with an ", TextType.TEXT),
+                            TextNode("italic", TextType.ITALIC),
+                            TextNode(" word and a ", TextType.TEXT),
+                            TextNode("code block", TextType.CODE),
+                            TextNode(" and an ", TextType.TEXT),
+                            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                            TextNode(" and a ", TextType.TEXT),
+                            TextNode("link", TextType.LINK, "https://boot.dev"),
+                             ])
+        
+    def test_text_to_textnodes_empty(self):
+        node = TextNode("This node has no markdown text", TextType.TEXT)
+        new_nodes = text_to_textnodes(node)
+        self.assertEqual(new_nodes, [TextNode("This node has no markdown text", TextType.TEXT)])
+
+    def test_text_to_textnodes_str(self):
+        new_nodes = text_to_textnodes("This test passes **markdown** text without a _node_")
+        self.assertListEqual( new_nodes,
+                             [
+                                 TextNode("This test passes ", TextType.TEXT),
+                                 TextNode("markdown", TextType.BOLD),
+                                 TextNode(" text without a ", TextType.TEXT),
+                                 TextNode("node", TextType.ITALIC),
+                                 #TextNode("", TextType.TEXT) #Ordering on function changed, no more trailing empty nodes
+                             ])
+        
+    def test_text_to_textnodes_repeat(self):
+        new_nodes = text_to_textnodes("This **test** reuses _some_ of the **same** _markdown_")
+        self.assertListEqual( new_nodes,
+                             [
+                                 TextNode("This ", TextType.TEXT),
+                                 TextNode("test", TextType.BOLD),
+                                 TextNode(" reuses ", TextType.TEXT),
+                                 TextNode("some", TextType.ITALIC),
+                                 TextNode(" of the ", TextType.TEXT),
+                                 TextNode("same", TextType.BOLD),
+                                 TextNode(" ", TextType.TEXT),
+                                 TextNode("markdown", TextType.ITALIC),
+                                 #TextNode("", TextType.TEXT) #See _str
+                             ])
+        
+    def test_text_to_textnodes_really_empty(self):
+        new_nodes = text_to_textnodes("")
+        self.assertEqual(new_nodes, [])
+
+    def test_text_to_textnodes_multiple_images(self):
+        new_nodes = text_to_textnodes("![image one](https://imgur.com) followed by a ![second image](https://paintbucket.com)")
+        self.assertListEqual( new_nodes,
+                             [
+                                 TextNode("image one", TextType.IMAGE, "https://imgur.com"),
+                                 TextNode(" followed by a ", TextType.TEXT),
+                                 TextNode("second image", TextType.IMAGE, "https://paintbucket.com")
+                             ])
+        
+    def test_text_to_textnodes_image_markdown(self):
+        new_nodes = text_to_textnodes("![image one](https://imgur.com) and some **bold** text")
+        self.assertListEqual( new_nodes,
+                             [
+                                 TextNode("image one", TextType.IMAGE, "https://imgur.com"),
+                                 TextNode(" and some ", TextType.TEXT),
+                                 TextNode("bold", TextType.BOLD),
+                                 TextNode(" text", TextType.TEXT)
+                             ])
+        
+    def test_text_to_textnodes_trailing_markdown(self):
+        new_nodes = text_to_textnodes("This string has _trailing_ **markdown**")
+        self.assertListEqual( new_nodes,
+                             [
+                                 TextNode("This string has ", TextType.TEXT),
+                                 TextNode("trailing", TextType.ITALIC),
+                                TextNode(" ", TextType.TEXT),
+                                TextNode("markdown", TextType.BOLD)
+                             ])
+        
+    def test_text_to_textnodes_trailing_mixed(self):
+        new_nodes = text_to_textnodes("This string has [a link](https://website.com) and _trailing_ **markdown**")
+        self.assertListEqual( new_nodes,
+                             [
+                                TextNode("This string has ", TextType.TEXT),
+                                TextNode("a link", TextType.LINK, "https://website.com"),
+                                TextNode(" and ", TextType.TEXT),
+                                TextNode("trailing", TextType.ITALIC),
+                                TextNode(" ", TextType.TEXT),
+                                TextNode("markdown", TextType.BOLD)
+                             ])
+        
+    def test_text_to_textnodes_leading(self):
+        new_nodes = text_to_textnodes("**Bold beginning** to this markdown string")
+        self.assertListEqual( new_nodes,
+                             [
+                                 TextNode("Bold beginning", TextType.BOLD),
+                                 TextNode(" to this markdown string", TextType.TEXT)
+                             ])
+
     #Tests for split node image and links
 
     def test_split_images(self):
@@ -117,7 +221,6 @@ class TestOtherFunctions(unittest.TestCase):
             TextNode(" of the node with a [link](https://website.com)", TextType.TEXT)
         ]
         new_nodes = split_nodes_link(node)
-        print(f"new_nodes: {new_nodes}")
         self.assertListEqual(new_nodes,
                              [
                                 TextNode("This text is the ", TextType.TEXT),
@@ -245,9 +348,9 @@ class TestOtherFunctions(unittest.TestCase):
         self.assertEqual(new_node, [TextNode("This one is ", TextType.TEXT), TextNode("bold", TextType.BOLD), TextNode(" text", TextType.TEXT)])
 
     def test_delimiter_at_start(self):
-        node = TextNode("*Bold text at the start* and then more regular text at the end", TextType.TEXT)
-        new_node = split_nodes_delimiter(node, "*", TextType.BOLD)
-        self.assertEqual(new_node, [TextNode("Bold text at the start", TextType.BOLD), TextNode(" and then more regular text at the end", TextType.TEXT)])
+        node = TextNode("**Bold text at the start** and then more regular text at the end", TextType.TEXT)
+        new_node = split_nodes_delimiter(node, "**", TextType.BOLD)
+        self.assertEqual(new_node, [TextNode("", TextType.TEXT), TextNode("Bold text at the start", TextType.BOLD), TextNode(" and then more regular text at the end", TextType.TEXT)])
 
     def test_separated_delimiters(self):
         node = TextNode("This *statement* has more than one *bold* word", TextType.TEXT)
@@ -264,9 +367,9 @@ class TestOtherFunctions(unittest.TestCase):
         new_node = split_nodes_delimiter(node, "`", TextType.CODE)
         self.assertEqual(new_node, [TextNode("I am writing some ", TextType.TEXT), TextNode("code", TextType.CODE), TextNode(" in this function", TextType.TEXT)])
 
-    def test_exception(self):
+    """def test_exception(self): #Deprecated, no longer going one element at a time, split function will just return regular textnode when missing closing delimiter
         node = TextNode("*This code should throw an error", TextType.TEXT)
-        self.assertRaises(Exception, split_nodes_delimiter, node, "*", TextType.BOLD)
+        self.assertRaises(Exception, split_nodes_delimiter, node, "*", TextType.BOLD)"""
 
     def test_split_nodes_delimiter_mixed(self):
         node = [
