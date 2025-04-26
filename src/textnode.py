@@ -30,7 +30,6 @@ class TextNode():
 
     
 def text_node_to_html_node(text_node):
-        print(TextType.BOLD)
         if not isinstance(text_node, TextNode):
             raise Exception(ValueError("Invalid TextNode type"))
         if text_node.text_type not in TextType:

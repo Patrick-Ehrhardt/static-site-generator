@@ -2,6 +2,9 @@ from textnode import *
 import math
 import re
 
+
+    
+
 def text_to_textnodes(text):
     if isinstance(text, str):
         text = TextNode(text, TextType.TEXT)

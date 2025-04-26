@@ -22,7 +22,6 @@ class HTMLNode():
         returnStr = ""
         for item in self.props:
             returnStr += " " + item + "=" + '"' + self.props[item] + '"'
-        #print(returnStr)
         return returnStr
     
     def __repr__(self):
