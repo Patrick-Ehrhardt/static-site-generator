@@ -50,7 +50,8 @@ class HTMLNode():
         if self.children:
             returnStr += self.children + ", "
         if self.props:
-            returnStr += self.props + ", "
+            for prop in self.props:
+                returnStr += prop + ", " + self.props[prop]
         returnStr += ")"
         return returnStr
 

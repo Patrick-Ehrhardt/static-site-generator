@@ -15,7 +15,7 @@ def block_to_block_type(markdown):
     split_text = markdown.split("\n")
     is_quote = True
     is_ordered_list = True
-    if re.search("#+\. ", markdown[:8]):
+    if re.search("\A#+", markdown):
         return BlockType.HEADING
     #if markdown[:3] == "```" and markdown[3:] == "```":
     if re.search("\A```", markdown) and re.search("```\Z", markdown):

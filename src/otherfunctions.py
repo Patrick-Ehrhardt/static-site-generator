@@ -2,7 +2,40 @@ from textnode import *
 from blocks import *
 import math
 import re
+import os
 
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    from_file = open(from_path)
+    markdown = from_file.read()
+    template_file = open(template_path)
+    template = template_file.read()
+    title = extract_title(markdown)
+    print(f"Files opened and read\nlen(markdown) = {len(markdown)}, len(template) = {len(template)}")
+    html_node = markdown_to_html_node(markdown)
+    print(f"html nodes parsed")
+    html = html_node.to_html()
+    print(f"html converted len = {len(html)}")
+    template = template.replace("{{ Title }}", title)
+    template = template.replace("{{ Content }}", html)
+    dest_dir = os.path.dirname(dest_path)
+    if dest_dir:
+        os.makedirs(dest_dir, exist_ok = True)
+    dest_file = open(dest_path, "w")
+    print(f"{dest_file} open")
+    dest_file.write(template)
+    print(f"dest_file written")
+    
+
+def extract_title(markdown):
+    split_blocks = markdown_to_blocks(markdown)
+    title = None
+    for i in range (0, len(split_blocks)):
+        if title == None:
+            title = re.search("\A#\ .", split_blocks[i]) #This works because our function is splitting into blocks, so it'll be at the beginning of the string. Prevents reading h2-h6 as title
+        if isinstance(title, re.Match):
+            return split_blocks[i][2:].strip()
+    raise Exception("No title found")
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
@@ -22,10 +55,11 @@ def block_to_html_node(block):
             new_node.children = text_to_children(content) #NYI
 
         case BlockType.HEADING:
-            level = re.search("\A#+", block)
+            level = re.search("\A#+ ", block)
             level = level.span()
-            level = level[1] - level[0]
-            content = block[level + 2:].strip() #Adding two for ". "
+            print(level)
+            level = level[1] - level[0] - 1
+            content = block[level:].strip() #Adding two for " "
             new_node = HTMLNode(tag=f"h{level}", value = "", children = [])
             new_node.children = text_to_children(content) #NYI
 
@@ -105,6 +139,7 @@ def split_nodes_image(old_nodes):
             if sections[0] and sections[0] != "":
                 new_nodes.append(TextNode(sections[0], TextType.TEXT))
             if matches[i][0] and matches[i][1]:
+                print(f"adding image node\n{TextNode(matches[i][0], TextType.IMAGE, matches[i][1])}")
                 new_nodes.append(TextNode(matches[i][0], TextType.IMAGE, matches[i][1]))
             if len(sections) > 1:
                 remaining_text = sections[1]

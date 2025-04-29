@@ -3,27 +3,34 @@ from leafnode import *
 from parentnode import *
 from otherfunctions import *
 from blocks import *
+import os
+import shutil
+
+def update_static_public():
+    if os.path.exists("./public"):
+        shutil.rmtree("./public/")
+    #print(os.listdir("./static"))
+    #print("./static/" + os.listdir("./static/")[0])
+    #shutil.copy("./static/" + os.listdir("./static/")[0], "./")
+    copy_recursive("./static/", "./public/")
+
+def copy_recursive(source, target):
+    if not os.path.isdir(target):
+        #print(f"making {target} dir")
+        os.mkdir(target)
+    file_list = os.listdir(source)
+    for file in file_list:
+        #print(file)
+        if os.path.isfile(source + file):
+            #print(f"copying {source + file} to {target + file}")
+            shutil.copy(source + file, target + file)
+        elif os.path.isdir(source + file):
+            copy_recursive(source + file + "/", target + file + "/")
+    return
 
 def main():
-    test_node = LeafNode("*", "Bold text Leaf Node")
-    #print(test_node)
-    test_parent = ParentNode("b", test_node)
-    #print(test_parent.to_html())
-    md = """
-```
-This is text that _should_ remain
-the **same** even with inline stuff
-```
-"""
-
-    md = """
-1. Get groceries
-2. Write code
-3. Go to bed
-"""
-    node = markdown_to_html_node(md)
-    html = node.to_html()
-    print(html)
+    update_static_public()
+    generate_page("./content/index.md", "template.html", "./public/index.html")
     return
 
 
@@ -35,3 +42,4 @@ the **same** even with inline stuff
 
 if __name__ == "__main__":
     main()
+

@@ -7,6 +7,41 @@ from textnode import *
 
 class TestOtherFunctions(unittest.TestCase):
 
+    #Tests for extract_title
+
+    def test_extract_title(self):
+        md = """
+# Title of essay
+
+Some more text
+
+**Markdown stuff**
+"""
+        title = extract_title(md)
+        self.assertEqual(title, "Title of essay")
+
+    def test_extract_title_middle(self):
+        md = """
+Foreward: Four words included
+
+# Title of **essay**
+
+Appendix: You don't really need it
+"""
+        title = extract_title(md)
+        self.assertEqual(title, "Title of **essay**")
+
+    def test_extract_title_headers(self):
+        md = """
+## Some other second header, placed at the beginning for some reason.
+
+# Why it's very annoying that VS code autofills the pound sign on newlines
+
+Case in point
+"""
+        title = extract_title(md)
+        self.assertEqual(title, "Why it's very annoying that VS code autofills the pound sign on newlines")
+
     #Tests for markdown_to_html_node and related helper functions
 
     def test_paragraphs(self):
@@ -43,7 +78,7 @@ the **same** even with inline stuff
 
     def test_headingblock(self):
         md = """
-##. Heading two
+## Heading two
 """
         node = markdown_to_html_node(md)
         html = node.to_html()
@@ -117,7 +152,7 @@ the **same** even with inline stuff
         
     def test_inline_header(self):
         md = """
-###. A **bold** heading sans _italics_
+### A **bold** heading sans _italics_
 """
         node = markdown_to_html_node(md)
         html = node.to_html()
@@ -126,7 +161,7 @@ the **same** even with inline stuff
         
     def test_heading_and_paragraph(self):
         md = """
-#. A **bold** heading
+# A **bold** heading
 
 And a body of _text_ talking about `code`
 probably some other stuff too
@@ -138,7 +173,7 @@ probably some other stuff too
 
     def test_three_blocks(self):
         md = """
-##. _Fancy_ Heading
+## _Fancy_ Heading
 
 >A quote from Shakespeare
 >Something inspiring that
