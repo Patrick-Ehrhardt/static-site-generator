@@ -16,7 +16,24 @@ class HTMLNode():
         pass
 
     def to_html(self):
-        raise Exception(NotImplementedError)
+        if self.tag is None:
+            return ""
+            
+        opening_tag = f"<{self.tag}"
+        if self.props:
+            opening_tag += self.props_to_html()
+        opening_tag += ">"
+        
+        content = ""
+        if self.value:
+            content += self.value
+        if self.children:
+            for child in self.children:
+                content += child.to_html()
+        
+        closing_tag = f"</{self.tag}>"
+        
+        return opening_tag + content + closing_tag
     
     def props_to_html(self):
         returnStr = ""
@@ -36,3 +53,4 @@ class HTMLNode():
             returnStr += self.props + ", "
         returnStr += ")"
         return returnStr
+

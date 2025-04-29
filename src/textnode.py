@@ -42,10 +42,10 @@ def text_node_to_html_node(text_node):
             case TextType.ITALIC:
                 return LeafNode("i", text_node.text)
             case TextType.CODE:
-                return LeafNode("code", text_node.text)
+                return LeafNode("code",text_node.text)
             case TextType.LINK:
                 return LeafNode("a", text_node.text, {"href"})
             case TextType.IMAGE:
-                return LeafNode("img", None, {"src", "alt"}) #Keep an eye on this, not sure how the src and alt text are meant to be passed
+                return LeafNode("img", None, {"src": "alt"}) #Keep an eye on this, not sure how the src and alt text are meant to be passed
             case _:
                 raise Exception("Unknown error in text_node_to_html_node")
