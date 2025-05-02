@@ -4,6 +4,21 @@ import math
 import re
 import os
 
+def generate_page_recursive(from_dir, template_path, dest_dir):
+    if not os.path.isdir(dest_dir):
+        os.mkdir(dest_dir)
+    file_list = os.listdir(from_dir)
+    for file in file_list:
+        #print(file)
+        extension = os.path.splitext(file)[1]
+        if os.path.isfile(from_dir + file) and extension == ".md" :
+            #print(f"copying {source + file} to {target + file}")
+            generate_page(from_dir + file, template_path, dest_dir + file[:-3] + ".html")
+            print(f"generate_page({from_dir} + {file}, {template_path}, {dest_dir} + {file[:-3]} + .html)")
+        elif os.path.isdir(from_dir + file):
+            generate_page_recursive(from_dir + file + "/", template_path, dest_dir + file + "/")
+    return
+
 def generate_page(from_path, template_path, dest_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     from_file = open(from_path)
@@ -75,7 +90,7 @@ def block_to_html_node(block):
             content = ""
             split_lines = block.split("\n")
             for line in split_lines:
-                content += line[1:] + "\n"
+                content += line[2:] + "\n" #updated to [2:] for "> ", all block quotes have a space after >
             content = content.rstrip("\n") #Is this ok?
             new_node = HTMLNode(tag="blockquote", value = "", children = [])
             new_node.children = text_to_children(content)

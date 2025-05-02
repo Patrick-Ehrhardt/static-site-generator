@@ -30,7 +30,7 @@ def copy_recursive(source, target):
 
 def main():
     update_static_public()
-    generate_page("./content/index.md", "template.html", "./public/index.html")
+    generate_page_recursive("./content/", "template.html", "./public/")
     return
 
 
