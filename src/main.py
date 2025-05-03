@@ -7,13 +7,13 @@ import os
 import shutil
 import sys
 
-def update_static_public():
-    if os.path.exists("./public"):
-        shutil.rmtree("./public/")
+def update_static_public(static, output):
+    if os.path.exists(output):
+        shutil.rmtree(output)
     #print(os.listdir("./static"))
     #print("./static/" + os.listdir("./static/")[0])
     #shutil.copy("./static/" + os.listdir("./static/")[0], "./")
-    copy_recursive("./static/", "./public/")
+    copy_recursive(static, output)
 
 def copy_recursive(source, target):
     if not os.path.isdir(target):
@@ -45,8 +45,8 @@ def main():
         print(f"making {basepath}content/")
         os.makedirs("." + basepath + "content/")
     print(f"basepath = {basepath}") """
-    update_static_public()
-    generate_page_recursive(f".{basepath}content/", f".{basepath}template.html", f".{basepath}public/", basepath)
+    update_static_public("./static/", "./docs/")
+    generate_page_recursive(f"./content/", f"./template.html", f"./docs/", basepath)
     return
 
 
