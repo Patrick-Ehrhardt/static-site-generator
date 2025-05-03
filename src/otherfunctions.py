@@ -4,7 +4,7 @@ import math
 import re
 import os
 
-def generate_page_recursive(from_dir, template_path, dest_dir):
+def generate_page_recursive(from_dir, template_path, dest_dir, basepath):
     if not os.path.isdir(dest_dir):
         os.mkdir(dest_dir)
     file_list = os.listdir(from_dir)
@@ -13,13 +13,13 @@ def generate_page_recursive(from_dir, template_path, dest_dir):
         extension = os.path.splitext(file)[1]
         if os.path.isfile(from_dir + file) and extension == ".md" :
             #print(f"copying {source + file} to {target + file}")
-            generate_page(from_dir + file, template_path, dest_dir + file[:-3] + ".html")
+            generate_page(from_dir + file, template_path, dest_dir + file[:-3] + ".html", basepath)
             print(f"generate_page({from_dir} + {file}, {template_path}, {dest_dir} + {file[:-3]} + .html)")
         elif os.path.isdir(from_dir + file):
-            generate_page_recursive(from_dir + file + "/", template_path, dest_dir + file + "/")
+            generate_page_recursive(from_dir + file + "/", template_path, dest_dir + file + "/", basepath)
     return
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     from_file = open(from_path)
     markdown = from_file.read()
@@ -33,6 +33,8 @@ def generate_page(from_path, template_path, dest_path):
     print(f"html converted len = {len(html)}")
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", html)
+    template = template.replace('href="/', f'href="{basepath}')
+    template = template.replace('src="/', f'src="{basepath}')
     dest_dir = os.path.dirname(dest_path)
     if dest_dir:
         os.makedirs(dest_dir, exist_ok = True)

@@ -5,6 +5,7 @@ from otherfunctions import *
 from blocks import *
 import os
 import shutil
+import sys
 
 def update_static_public():
     if os.path.exists("./public"):
@@ -29,8 +30,23 @@ def copy_recursive(source, target):
     return
 
 def main():
+    basepath = "/"
+    #print(type(sys.argv))
+    #print(len(sys.argv))
+    if(len(sys.argv) > 1):
+        basepath = sys.argv[1]
+        """
+    if not os.path.exists(basepath):
+        os.makedirs(basepath)
+    if not os.path.exists(basepath + "public/"):
+        print(f"making {basepath}public/")
+        os.makedirs("." + basepath + "public/")
+    if not os.path.exists(basepath + "content/"):
+        print(f"making {basepath}content/")
+        os.makedirs("." + basepath + "content/")
+    print(f"basepath = {basepath}") """
     update_static_public()
-    generate_page_recursive("./content/", "template.html", "./public/")
+    generate_page_recursive(f".{basepath}content/", f".{basepath}template.html", f".{basepath}public/", basepath)
     return
 
 
